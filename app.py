@@ -1,4 +1,4 @@
-import sqlite3
+import libsql_experimental as sqlite3  # <-- Pengganti sqlite3 bawaan
 import uuid
 from datetime import datetime, date
 from fastapi import FastAPI, HTTPException
@@ -17,17 +17,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = "kosflow.db"
+# ══════════════════════════════════════════════════════════════════
+# DATABASE SETUP (TURSO CLOUD)
+# ══════════════════════════════════════════════════════════════════
 
-# ══════════════════════════════════════════════════════════════════
-# DATABASE SETUP
-# ══════════════════════════════════════════════════════════════════
+# Masukkan URL dan Token kamu di antara tanda kutip
+TURSO_URL = "libsql://kosflow-rifki-ardhika-putra7.aws-ap-northeast-1.turso.io"
+TURSO_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODAxNjQzMjksImlkIjoiMDE5ZTdhMGMtMzgwMS03OGM4LWE2ZmMtNTIzYjYzMDUzYzNmIiwicmlkIjoiODk3YzViOTUtNDc4Yi00OGFhLWIyZmMtNDEzZWM3YjhkMzYzIn0.ay-etYRqKXdPjc2cEmQ8I2jWxGHV44zXk_yWCP0eyg1TQ1E5dJ2tqWgdZxdLnvt325uf8gNN3SHtdO1VTNk0Cw"
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
+    # Koneksi langsung ke cloud Turso
+    conn = sqlite3.connect(TURSO_URL, auth_token=TURSO_TOKEN)
+    
+    # Custom format supaya hasilnya tetap bisa dibaca sebagai Dictionary oleh FastAPI
+    def dict_factory(cursor, row):
+        fields = [column[0] for column in cursor.description]
+        return {key: value for key, value in zip(fields, row)}
+        
+    conn.row_factory = dict_factory
     return conn
 
 def init_db():
