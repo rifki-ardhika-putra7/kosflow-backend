@@ -23,7 +23,7 @@ app.add_middleware(
 
 # Masukkan URL dan Token kamu di antara tanda kutip
 TURSO_URL = "libsql://kosflow-rifki-ardhika-putra7.aws-ap-northeast-1.turso.io"
-TURSO_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODAxNjQzMjksImlkIjoiMDE5ZTdhMGMtMzgwMS03OGM4LWE2ZmMtNTIzYjYzMDUzYzNmIiwicmlkIjoiODk3YzViOTUtNDc4Yi00OGFhLWIyZmMtNDEzZWM3YjhkMzYzIn0.ay-etYRqKXdPjc2cEmQ8I2jWxGHV44zXk_yWCP0eyg1TQ1E5dJ2tqWgdZxdLnvt325uf8gNN3SHtdO1VTNk0Cw"
+TURSO_TOKEN = "libsql://kosflow-rifki-ardhika-putra7.aws-ap-northeast-1.turso.io"
 
 def get_db():
     # Koneksi langsung ke cloud Turso
@@ -143,7 +143,10 @@ def init_db():
     conn.close()
     print("✅ Database initialized successfully")
 
-init_db()
+@app.on_event("startup")
+def startup_db():
+    print("Mencoba koneksi ke Turso...")
+    init_db()
 
 # ══════════════════════════════════════════════════════════════════
 # HELPERS
